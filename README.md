@@ -5,11 +5,12 @@
 
 ## Args
 
-| Arg             | Required | Default            | Description                       |
-|-----------------|----------|--------------------|-----------------------------------|
-| --authorization | false    | -                  | Storage api authorization token   |
-| --config        | false    | cd/deployment.yaml | Path to the deployment.yaml file. |
-| --help          | false    |                    | Show available args.              |
+| Arg             | Required | Default            | Description                                          |
+|-----------------|----------|--------------------|------------------------------------------------------|
+| --help          | false    |                    | Show available args.                                 |
+| --authorization | false    | -                  | Storage api authorization token                      |
+| --config        | false    | cd/deployment.yaml | Path to the deployment.yaml file.                    |
+| --pushImage     | false    | true               | A flag to indicate whether to push the image or not. |
 
 - Config build
 
