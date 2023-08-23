@@ -19,14 +19,18 @@ imageName: mya-pp
 imageTag: v1
 template: "ci/deployment.mustache"
 
-# Expecting endpoint that accept post file with body like
+# Expecting endpoint that accept post file with body like to 
+# push the new docker-compose.yaml file
 # curl --location 'https://storage-api.com/v1/file/upload' \
 #--header 'Authorization: oauthToken' \
 #  --form 'file=@"my-file-path"' \
 #  --form 'fileName="my-file-name"' \
 #  --form 'dirName="directory-destiny"'
 uploadUrl: https://storage-api.com/v1/file/upload
-
+# If you want to push the image to a custom docker registry
+pushImageHost: docker-registry.com
+# If you want to pull the image from a custom docker registry
+pullImageHost: 127.0.0.1:5000
 dockerfile: .
 bind:
   ports:
