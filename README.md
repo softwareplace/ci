@@ -64,7 +64,7 @@ volumes:
 ```
 
 ```shell
-export AUTHORISATION=$(./ci/authorization -api_host {{apitHost}} -password {{password}} -username {{eliasmeirelesf@gmail.com}})
+export AUTHORISATION=$(./ci/authorization -api_host {{apitHost}} -password {{password}} -username {{username}})
 ```
 
 ## Run
