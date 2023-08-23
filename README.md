@@ -5,17 +5,20 @@
 
 ## Args
 
-| Arg             | Required | Default            | Description                                          |
-|-----------------|----------|--------------------|------------------------------------------------------|
-| --help          | false    |                    | Show available args.                                 |
-| --authorization | false    | -                  | Storage api authorization token                      |
-| --config        | false    | cd/deployment.yaml | Path to the deployment.yaml file.                    |
-| --pushImage     | false    | true               | A flag to indicate whether to push the image or not. |
+| Arg             | Required | Default            | Description                                                                                                                     |
+|-----------------|----------|--------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| --help          | false    |                    | Show available args.                                                                                                            |
+| --config        | false    | cd/deployment.yaml | Path to the deployment.yaml file.                                                                                               |
+| --pushImage     | false    | true               | A flag to indicate whether to push the image or not. If true the generate docker image and docker-compose.yaml, will be pushed. |
+| --imageTag      | false    |                    | The imageTag parameter is used during the Docker image build process to tag the image that is being built.                      |
+| --authorization | false    | -                  | Storage api authorization token                                                                                                 |
 
 - Config build
 
 ```yaml
 imageName: mya-pp
+
+# By running /deployment specifying --imageTag, the imageTag on configuration file will be ignored 
 imageTag: v1
 template: "ci/deployment.mustache"
 
