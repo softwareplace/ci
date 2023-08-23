@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  storage-api:
+    image: {{.IMAGE_NAME}}:{{.IMAGE_TAG}}
+    container_name: {{.IMAGE_NAME}}
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "{{.CPU_LIMIT}}"
+          memory: "{{.MEMORY_LIMIT}}"
+    ports:{{range $index, $val := .BIND_CONTAINER_PORT}}
+      - "{{.}}"{{end}}
+    volumes:{{range $index, $val := .BIND_VOLUMES}}
+      - "{{.}}"{{end}}
+{{if .VOLUMES}}volumes:{{range $index, $val := .VOLUMES}}
+  {{.}}{{end}}
+{{end}}
