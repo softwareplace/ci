@@ -10,6 +10,12 @@ services:
         limits:
           cpus: "{{.CPU_LIMIT}}"
           memory: "{{.MEMORY_LIMIT}}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "{{.HEALTH_CHECK_URL}}"]
+      interval: {{.HEALTH_CHECK_INTERVAL}}
+      timeout: {{.HEALTH_CHECK_TIMEOUT}}
+      retries: {{.HEALTH_CHECK_RETRIES}}
+      start_period: {{.HEALTH_CHECK_START_PERIOD}}
     ports:{{range $index, $val := .BIND_CONTAINER_PORT}}
       - "{{.}}"{{end}}
     volumes:{{range $index, $val := .BIND_VOLUMES}}
