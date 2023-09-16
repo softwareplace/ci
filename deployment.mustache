@@ -1,25 +1,25 @@
 version: '3.7'
 
 services:
-  {{.CONTAINER_NAME}}:
-    image: {{.IMAGE_NAME}}:{{.IMAGE_TAG}}
-    container_name: {{.CONTAINER_NAME}}
+  {{.ContainerName}}:
+    image: {{.ImageName}}:{{.ImageTag}}
+    container_name: {{.ContainerName}}
     restart: always
     deploy:
       resources:
         limits:
-          cpus: "{{.CPU_LIMIT}}"
-          memory: "{{.MEMORY_LIMIT}}"
+          cpus: "{{.CpuLimit}}"
+          memory: "{{.MemoryLimit}}"
     healthcheck:
-      test: ["CMD", "curl", "-f", "{{.HEALTH_CHECK_URL}}"]
-      interval: {{.HEALTH_CHECK_INTERVAL}}
-      timeout: {{.HEALTH_CHECK_TIMEOUT}}
-      retries: {{.HEALTH_CHECK_RETRIES}}
-      start_period: {{.HEALTH_CHECK_START_PERIOD}}
-    ports:{{range $index, $val := .BIND_CONTAINER_PORT}}
+      test: ["CMD", "curl", "-f", "{{.HealthCheckUrl}}"]
+      interval: {{.HealthCheckInterval}}
+      timeout: {{.HealthCheckTimeout}}
+      retries: {{.HealthCheckRetries}}
+      start_period: {{.HealthCheckStartPeriod}}
+    ports:{{range $index, $val := .BindContainerPort}}
       - "{{.}}"{{end}}
-    volumes:{{range $index, $val := .BIND_VOLUMES}}
+    volumes:{{range $index, $val := .BindVolumes}}
       - "{{.}}"{{end}}
-{{if .VOLUMES}}volumes:{{range $index, $val := .VOLUMES}}
+{{if .Volumes}}volumes:{{range $index, $val := .Volumes}}
   {{.}}{{end}}
 {{end}}
