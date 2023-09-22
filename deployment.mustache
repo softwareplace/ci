@@ -20,6 +20,8 @@ services:
       - "{{.}}"{{end}}
     volumes:{{range $index, $val := .BindVolumes}}
       - "{{.}}"{{end}}
+    {{if .Environment}}environment: {{range $key, $val := .Environment}}
+        {{$key}}: "{{$val}}"{{end}}{{end}}
 {{if .Volumes}}volumes:{{range $index, $val := .Volumes}}
   {{.}}{{end}}
 {{end}}
