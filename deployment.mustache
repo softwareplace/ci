@@ -5,6 +5,8 @@ services:
     image: {{.ImageName}}:{{.ImageTag}}
     container_name: {{.ContainerName}}
     restart: always
+    {{if .ExtrasHosts}}extra_hosts:{{range $index, $val := .ExtrasHosts}}
+      - "{{.}}"{{end}}{{end}}
     deploy:
       resources:
         limits:
@@ -16,10 +18,10 @@ services:
       timeout: {{.HealthCheckTimeout}}
       retries: {{.HealthCheckRetries}}
       start_period: {{.HealthCheckStartPeriod}}
-    ports:{{range $index, $val := .BindContainerPort}}
-      - "{{.}}"{{end}}
-    volumes:{{range $index, $val := .BindVolumes}}
-      - "{{.}}"{{end}}
+    {{if .BindContainerPort}}ports:{{range $index, $val := .BindContainerPort}}
+      - "{{.}}"{{end}}{{end}}
+    {{if .BindVolumes}}volumes:{{range $index, $val := .BindVolumes}}
+      - "{{.}}"{{end}}{{end}}
     {{if .Environment}}environment: {{range $key, $val := .Environment}}
         {{$key}}: "{{$val}}"{{end}}{{end}}
 {{if .Volumes}}volumes:{{range $index, $val := .Volumes}}
