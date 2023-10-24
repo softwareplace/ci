@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd ci && git pull origin main
+
+
+
