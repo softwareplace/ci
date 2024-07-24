@@ -8,8 +8,8 @@ usageHelp() {
     echo "  repository: The GitHub repository in the format 'user/repo'."
     echo "  target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
     echo "  source-dir: Optional. The directory where should store the files. Defaults to 'cd'."
-    echo "  target-dir: Optional. The directory or file pats that should copied to the target-dir. Defaults to './.temp/**'"
-    echo "  example: ./ci/bot \${{ github.repository }} source cd .temp/**"
+    echo "  target-dir: Optional. The directory or file pats that should copied to the target-dir. Defaults to '../.temp/**'"
+    echo "  example: ./ci/bot \${{ github.repository }} source cd ../.temp/**"
 }
 
 # Check if the repository argument is provided
@@ -23,7 +23,7 @@ usageHelp
 
 REPOSITORY=$1
 TARGET_BRANCH=${2:-deployment}
-TARGET_DIR=${3:-"./.temp/**"}
+TARGET_DIR=${3:-"../.temp/**"}
 SOURCE_DIR=${4:-"cd/"}
 
 echo "[BOT] initializing..."
@@ -31,7 +31,6 @@ echo "  REPOSITORY=$REPOSITORY"
 echo "  TARGET_BRANCH=$TARGET_BRANCH"
 echo "  TARGET_DIR=$TARGET_DIR"
 echo "  SOURCE_DIR=$SOURCE_DIR"
-
 
 rm -rf .git
 
