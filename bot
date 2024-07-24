@@ -9,7 +9,7 @@ usageHelp() {
     echo "  target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
     echo "  source-dir: Optional. The directory where should store the files. Defaults to 'cd'."
     echo "  target-dir: Optional. The directory or file pats that should copied to the target-dir. Defaults to '../.temp/**'"
-    echo "  example: ./ci/bot \${{ github.repository }} source cd ../.temp/**"
+    echo "  example: ./ci/bot \${{ github.repository }} source cd .temp/**"
 }
 
 # Check if the repository argument is provided
@@ -58,7 +58,13 @@ git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
 mkdir -p "./${SOURCE_DIR}/"
 
-cp -r "$CURRENT_PATH/$TARGET_DIR" ./${SOURCE_DIR}/
+cp -r "$TARGET_DIR" ./${SOURCE_DIR}/
+
+echo "Files in $TARGET_BRANCH"
+ls -lah "$TARGET_BRANCH"
+
+echo "Files in $SOURCE_DIR"
+ls -lah "./${SOURCE_DIR}/"
 
 # Create a commit message with user info and link to commit changes
 COMMIT_MESSAGE="[BOT] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
