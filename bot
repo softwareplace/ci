@@ -56,9 +56,9 @@ LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
-mkdir -p "./${TARGET_DIR}/"
+mkdir -p "./${SOURCE_DIR}/"
 
-cp -r "$CURRENT_PATH/$SOURCE_DIR" ./${TARGET_DIR}/
+cp -r "$CURRENT_PATH/$TARGET_DIR" ./${SOURCE_DIR}/
 
 # Create a commit message with user info and link to commit changes
 COMMIT_MESSAGE="[BOT] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
@@ -67,7 +67,7 @@ ${LAST_COMMIT_MSG}
 echo "$COMMIT_MESSAGE"
 
 # Add, commit, and push the changes
-git add ./${TARGET_DIR}
+git add ./${SOURCE_DIR}
 
 git commit -m "$COMMIT_MESSAGE" || echo "No changes to commit"
 
