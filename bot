@@ -23,8 +23,8 @@ usageHelp
 
 REPOSITORY=$1
 TARGET_BRANCH=${2:-deployment}
-TARGET_DIR=${3:-"../.temp/**"}
-SOURCE_DIR=${4:-"cd/"}
+SOURCE_DIR=${3:-"cd/"}
+TARGET_DIR=${4:-"../.temp/**"}
 
 echo "[BOT] initializing..."
 echo "  REPOSITORY=$REPOSITORY"
