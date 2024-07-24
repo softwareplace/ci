@@ -60,8 +60,8 @@ mkdir -p "./${SOURCE_DIR}/"
 
 cp -r "$TARGET_DIR" ./${SOURCE_DIR}/
 
-echo "Files in $TARGET_BRANCH"
-ls -lah "$TARGET_BRANCH"
+echo "Files in $TARGET_DIR"
+ls -lah "$TARGET_DIR"
 
 echo "Files in $SOURCE_DIR"
 ls -lah "./${SOURCE_DIR}/"
