@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+usageHelp() {
+    echo "Usage: $0 <repository> [target-branch]"
+    echo "  repository: The GitHub repository in the format 'user/repo'."
+    echo "  target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
+    echo "  source-dir: Optional. The directory where should store the files. Defaults to 'cd'."
+    echo "  target-dir: Optional. The directory or file pats that should copied to the target-dir. Defaults to './.temp/**'"
+    echo "  example: ./ci/bot \${{ github.repository }} source cd .temp/**"
+}
+
+# Check if the repository argument is provided
+if [ -z "$1" ]; then
+  usageHelp
+  exit 1
+fi
+
+echo "Usage help"
+usageHelp
+
+REPOSITORY=$1
+TARGET_BRANCH=${2:-deployment}
+TARGET_DIR=${3:-"./.temp/**"}
+SOURCE_DIR=${4:-"cd/"}
+
+echo "[BOT] initializing..."
+echo "  REPOSITORY=$REPOSITORY"
+echo "  TARGET_BRANCH=$TARGET_BRANCH"
+echo "  TARGET_DIR=$TARGET_DIR"
+echo "  SOURCE_DIR=$SOURCE_DIR"
+
+
+rm -rf .git
+
+git config --global user.name "[bot] - deployment"
+git config --global user.email "eliasmeireles@gmail.com"
+
+git clone "git@github.com:${REPOSITORY}.git"
+
+# Extract the project name from the REPOSITORY variable
+PROJECT_NAME=$(echo "$REPOSITORY" | cut -d'/' -f2)
+
+CURRENT_PATH=$(pwd)
+
+cd "$PROJECT_NAME"
+
+echo "Current branch: $(git branch --show-current)"
+
+LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+echo "Last commit message: $LAST_COMMIT_MSG"
+
+LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
+
+# Fetch and switch to the target branch, or create it if it does not exist
+git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
+
+mkdir -p "./${TARGET_DIR}/"
+
+cp -r "$CURRENT_PATH/$SOURCE_DIR" ./${TARGET_DIR}/
+
+# Create a commit message with user info and link to commit changes
+COMMIT_MESSAGE="[BOT] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
+${LAST_COMMIT_MSG}
+"
+echo "$COMMIT_MESSAGE"
+
+# Add, commit, and push the changes
+git add ./${TARGET_DIR}
+
+git commit -m "$COMMIT_MESSAGE" || echo "No changes to commit"
+
+LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+echo "Last commit message: $LAST_COMMIT_MSG"
+
+# Push changes with handling for fast-forward issues
+git push origin "$TARGET_BRANCH" || (git pull --rebase && git push origin "$TARGET_BRANCH")
+
+# Create a tag with repository name, flag, and commit hash
+TAG="${LAST_COMMIT_HASH}"
+TAG_MESSAGE="[BOT] generated on [${LAST_COMMIT_HASH}]
+${LAST_COMMIT_MSG}
+"
+echo "$TAG_MESSAGE"
+
+git tag -a "$TAG" -m "$TAG_MESSAGE"
+git push origin "$TAG"
+
+# Output the tag
+echo "TAG=$TAG" >> "$GITHUB_ENV"
+
+# Log the generated tag name
+echo "Generated tag name: $TAG"
