@@ -58,7 +58,7 @@ git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
 mkdir -p "./${SOURCE_DIR}/"
 
-cp -r "$TARGET_DIR" ./${SOURCE_DIR}/
+cp -r $TARGET_DIR ./${SOURCE_DIR}/
 
 echo "Files in $TARGET_DIR"
 ls -lah "$TARGET_DIR"
