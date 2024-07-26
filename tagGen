@@ -25,6 +25,11 @@ REPOSITORY=$1
 TARGET_BRANCH=${2:-deployment}
 SOURCE_DIR=${3:-"cd/"}
 TARGET_DIR=${4:-"../.temp/**"}
+CURRENT_BRANCH=$(git branch --show-current)
+CURRENT_PATH=$(pwd)
+
+# Extract the project name from the REPOSITORY variable
+PROJECT_NAME=$(echo "$REPOSITORY" | cut -d'/' -f2)
 
 echo "[TAG-GENERATOR] initializing..."
 echo "  REPOSITORY=$REPOSITORY"
@@ -57,11 +62,6 @@ copyingFiles() {
     ls -lah ${PROJECT_NAME}/${SOURCE_DIR}
 }
 
-# Extract the project name from the REPOSITORY variable
-PROJECT_NAME=$(echo "$REPOSITORY" | cut -d'/' -f2)
-
-CURRENT_PATH=$(pwd)
-
 echo "Loading last commit info"
 loadingLastCommitInfo
 
@@ -93,7 +93,7 @@ git push origin "$TARGET_BRANCH" || (git pull --rebase && git push origin "$TARG
 
 # Create a tagGen with repository name, flag, and commit hash
 TAG="${LAST_COMMIT_HASH}"
-TAG_MESSAGE="[TAG-GENERATOR] generated on [${LAST_COMMIT_HASH}]
+TAG_MESSAGE="[TAG-GENERATOR] generated on [${CURRENT_BRANCH}-${LAST_COMMIT_HASH}]
 ${LAST_COMMIT_MSG}
 "
 echo "$TAG_MESSAGE"
