@@ -3,7 +3,6 @@
 usageHelp() {
     echo "Usage: $0 <repository> [target-branch]"
     echo "  repository: The GitHub repository in the format 'user/repo'."
-    echo "  target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
     echo "  example: ./ci/checkout \${{ github.repository }}"
 }
 
