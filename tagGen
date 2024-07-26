@@ -26,18 +26,24 @@ TARGET_BRANCH=${2:-deployment}
 SOURCE_DIR=${3:-"cd/"}
 TARGET_DIR=${4:-"../.temp/**"}
 
-echo "[BOT] initializing..."
+echo "[TAG-GENERATOR] initializing..."
 echo "  REPOSITORY=$REPOSITORY"
 echo "  TARGET_BRANCH=$TARGET_BRANCH"
 echo "  TARGET_DIR=$TARGET_DIR"
 echo "  SOURCE_DIR=$SOURCE_DIR"
 
-rm -rf .git
 
-git config --global user.name "[bot] - deployment"
+git config --global user.name "[TAG-GENERATOR] - deployment"
 git config --global user.email "eliasmeireles@gmail.com"
 
-git clone "git@github.com:${REPOSITORY}.git"
+loadingLastCommitInfo() {
+   echo "Current branch: $(git branch --show-current)"
+   LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+   echo "Last commit message: $LAST_COMMIT_MSG"
+
+   LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
+}
+
 
 # Extract the project name from the REPOSITORY variable
 PROJECT_NAME=$(echo "$REPOSITORY" | cut -d'/' -f2)
@@ -54,20 +60,22 @@ ls -lah ${PROJECT_NAME}/${SOURCE_DIR}
 
 CURRENT_PATH=$(pwd)
 
-cd "$PROJECT_NAME"
 
-echo "Current branch: $(git branch --show-current)"
+echo "Loading last commit info"
+loadingLastCommitInfo
 
-LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
-echo "Last commit message: $LAST_COMMIT_MSG"
+echo "Cloning repository"
+git clone "git@github.com:${REPOSITORY}.git"
 
-LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
+rm -rf .git
+
+cd "$PROJECT_NAME" || exit 1
 
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
 # Create a commit message with user info and link to commit changes
-COMMIT_MESSAGE="[BOT] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
+COMMIT_MESSAGE="[TAG-GENERATOR] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
 ${LAST_COMMIT_MSG}
 "
 echo "$COMMIT_MESSAGE"
@@ -77,24 +85,22 @@ git add ./${SOURCE_DIR}
 
 git commit -m "$COMMIT_MESSAGE" || echo "No changes to commit"
 
-LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
-echo "Last commit message: $LAST_COMMIT_MSG"
-
 # Push changes with handling for fast-forward issues
 git push origin "$TARGET_BRANCH" || (git pull --rebase && git push origin "$TARGET_BRANCH")
 
 # Create a tagGen with repository name, flag, and commit hash
 TAG="${LAST_COMMIT_HASH}"
-TAG_MESSAGE="[BOT] generated on [${LAST_COMMIT_HASH}]
+TAG_MESSAGE="[TAG-GENERATOR] generated on [${LAST_COMMIT_HASH}]
 ${LAST_COMMIT_MSG}
 "
 echo "$TAG_MESSAGE"
 
-git tagGen -a "$TAG" -m "$TAG_MESSAGE"
+echo "Creating a new tag: $TAG"
+git tag -a "$TAG" -m "$TAG_MESSAGE"
 git push origin "$TAG"
 
 # Output the tagGen
 echo "TAG=$TAG" >> "$GITHUB_ENV"
-
 # Log the generated tagGen name
 echo "Generated tag name: $TAG"
+

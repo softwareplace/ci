@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 usageHelp() {
     echo "Usage: $0 <repository> [target-branch]"
     echo "  repository: The GitHub repository in the format 'user/repo'."
@@ -17,7 +20,7 @@ usageHelp
 
 REPOSITORY=$1
 
-echo "[BOT] initializing..."
+echo "[TAG-GENERATOR] initializing..."
 echo "  REPOSITORY=$REPOSITORY"
 
 
