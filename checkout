@@ -1,0 +1,58 @@
+#!/bin/bash
+
+usageHelp() {
+    echo "Usage: $0 <repository> [target-branch]"
+    echo "  repository: The GitHub repository in the format 'user/repo'."
+    echo "  target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
+    echo "  example: ./ci/checkout \${{ github.repository }}"
+}
+
+# Check if the repository argument is provided
+if [ -z "$1" ]; then
+  usageHelp
+  exit 1
+fi
+
+echo "Usage help"
+usageHelp
+
+REPOSITORY=$1
+
+echo "[BOT] initializing..."
+echo "  REPOSITORY=$REPOSITORY"
+
+
+checkoutInfo() {
+  LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
+  LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+
+  echo "Last commit message from hash $LAST_COMMIT_HASH:
+  $LAST_COMMIT_MSG
+  "
+}
+
+checkoutInfo
+
+rm -rf .git
+
+# Extract the project name from the REPOSITORY variable
+PROJECT_NAME=$(echo "$REPOSITORY" | cut -d'/' -f2)
+git clone "git@github.com:${REPOSITORY}.git"
+
+# cd project with validation. If failed, exit.
+cd "$PROJECT_NAME" || exit 1
+
+echo "Before checkout"
+
+checkoutInfo
+
+git checkout $LAST_COMMIT_HASH
+
+echo "After checkout"
+
+checkoutInfo
+
+echo "Current branch: in ($(pwd)) - $(git branch --show-current)"
+
+
+

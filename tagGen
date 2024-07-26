@@ -9,7 +9,7 @@ usageHelp() {
     echo "  target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
     echo "  source-dir: Optional. The directory where should store the files. Defaults to 'cd'."
     echo "  target-dir: Optional. The directory or file pats that should copied to the target-dir. Defaults to '../.temp/**'"
-    echo "  example: ./ci/bot \${{ github.repository }} source cd .temp/**"
+    echo "  example: ./ci/tagGen \${{ github.repository }} source cd .temp/**"
 }
 
 # Check if the repository argument is provided
@@ -83,18 +83,18 @@ echo "Last commit message: $LAST_COMMIT_MSG"
 # Push changes with handling for fast-forward issues
 git push origin "$TARGET_BRANCH" || (git pull --rebase && git push origin "$TARGET_BRANCH")
 
-# Create a tag with repository name, flag, and commit hash
+# Create a tagGen with repository name, flag, and commit hash
 TAG="${LAST_COMMIT_HASH}"
 TAG_MESSAGE="[BOT] generated on [${LAST_COMMIT_HASH}]
 ${LAST_COMMIT_MSG}
 "
 echo "$TAG_MESSAGE"
 
-git tag -a "$TAG" -m "$TAG_MESSAGE"
+git tagGen -a "$TAG" -m "$TAG_MESSAGE"
 git push origin "$TAG"
 
-# Output the tag
+# Output the tagGen
 echo "TAG=$TAG" >> "$GITHUB_ENV"
 
-# Log the generated tag name
+# Log the generated tagGen name
 echo "Generated tag name: $TAG"
