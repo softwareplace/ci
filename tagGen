@@ -73,8 +73,11 @@ cd "$PROJECT_NAME" || exit 1
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
+git stash
 # Fetch and rebase with the remote branch before pushing
 git pull --rebase origin "$TARGET_BRANCH"
+
+git stash pop
 
 # Create a commit message with user info and link to commit changes
 COMMIT_MESSAGE="[TAG-GENERATOR] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
