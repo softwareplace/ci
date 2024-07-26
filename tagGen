@@ -4,11 +4,11 @@
 set -e
 
 usageHelp() {
-    echo "Usage: $0 <repository> [target-branch]"
+    echo "Usage: $0 <repository> [target-branch] [source-dir] [target-dir]"
     echo "  repository: The GitHub repository in the format 'user/repo'."
     echo "  target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
     echo "  source-dir: Optional. The directory where should store the files. Defaults to 'cd'."
-    echo "  target-dir: Optional. The directory or file pats that should copied to the target-dir. Defaults to '../.temp/**'"
+    echo "  target-dir: Optional. The directory or file paths that should be copied to the target-dir. Defaults to '../.temp/**'"
     echo "  example: ./ci/tagGen \${{ github.repository }} source cd .temp/**"
 }
 
@@ -17,9 +17,6 @@ if [ -z "$1" ]; then
   usageHelp
   exit 1
 fi
-
-echo "Usage help"
-usageHelp
 
 REPOSITORY=$1
 TARGET_BRANCH=${2:-deployment}
@@ -36,7 +33,6 @@ echo "  REPOSITORY=$REPOSITORY"
 echo "  TARGET_BRANCH=$TARGET_BRANCH"
 echo "  TARGET_DIR=$TARGET_DIR"
 echo "  SOURCE_DIR=$SOURCE_DIR"
-
 
 git config --global user.name "[TAG-GENERATOR] - deployment"
 git config --global user.email "eliasmeireles@gmail.com"
@@ -77,6 +73,9 @@ cd "$PROJECT_NAME" || exit 1
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
+# Fetch and rebase with the remote branch before pushing
+git pull --rebase origin "$TARGET_BRANCH"
+
 # Create a commit message with user info and link to commit changes
 COMMIT_MESSAGE="[TAG-GENERATOR] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
 ${LAST_COMMIT_MSG}
@@ -88,7 +87,6 @@ git add ./${SOURCE_DIR}
 
 git commit -m "$COMMIT_MESSAGE" || echo "No changes to commit"
 
-# Push changes with handling for fast-forward issues
 git push origin "$TARGET_BRANCH" || (git pull --rebase && git push origin "$TARGET_BRANCH")
 
 # Create a tagGen with repository name, flag, and commit hash
@@ -107,4 +105,3 @@ git push origin "$TAG"
 echo "TAG=$TAG" >> "$GITHUB_ENV"
 # Log the generated tagGen name
 echo "Generated tag name: $TAG"
-
