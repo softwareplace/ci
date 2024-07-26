@@ -42,6 +42,16 @@ git clone "git@github.com:${REPOSITORY}.git"
 # Extract the project name from the REPOSITORY variable
 PROJECT_NAME=$(echo "$REPOSITORY" | cut -d'/' -f2)
 
+mkdir -p ${PROJECT_NAME}/${SOURCE_DIR}/
+
+cp -r $TARGET_DIR ${PROJECT_NAME}/${SOURCE_DIR}/
+
+echo "Files in $TARGET_DIR"
+ls -lah "$TARGET_DIR"
+
+echo "Files in $SOURCE_DIR"
+ls -lah ${PROJECT_NAME}/${SOURCE_DIR}
+
 CURRENT_PATH=$(pwd)
 
 cd "$PROJECT_NAME"
@@ -55,16 +65,6 @@ LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
 
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
-
-mkdir -p "./${SOURCE_DIR}/"
-
-cp -r $TARGET_DIR ./${SOURCE_DIR}/
-
-echo "Files in $TARGET_DIR"
-ls -lah "$TARGET_DIR"
-
-echo "Files in $SOURCE_DIR"
-ls -lah "./${SOURCE_DIR}/"
 
 # Create a commit message with user info and link to commit changes
 COMMIT_MESSAGE="[BOT] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
