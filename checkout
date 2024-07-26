@@ -29,7 +29,7 @@ checkoutInfo() {
   LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
   LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
 
-  echo "Last commit message from hash $LAST_COMMIT_HASH:
+  echo "Last commit message from hash $CURRENT_BRANCH-$LAST_COMMIT_HASH:
   $LAST_COMMIT_MSG
   "
 }
@@ -49,7 +49,8 @@ echo "Before checkout"
 
 checkoutInfo
 
-git checkout "$CURRENT_BRANCH-$LAST_COMMIT_HASH"
+git fetch --tags
+git checkout tags/"$CURRENT_BRANCH-$LAST_COMMIT_HASH"
 
 echo "After checkout"
 
