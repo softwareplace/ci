@@ -46,7 +46,8 @@ loadingLastCommitInfo() {
 }
 
 copyingFiles() {
-    echo "Copying files from $SOURCE_DIR to $TARGET_DIR"
+    echo "Copying files from $TARGET_DIR to $SOURCE_DIR"
+
     mkdir -p ${PROJECT_NAME}/${SOURCE_DIR}/
 
     cp -r $TARGET_DIR ${PROJECT_NAME}/${SOURCE_DIR}/
@@ -70,14 +71,15 @@ rm -rf .git
 
 cd "$PROJECT_NAME" || exit 1
 
+git stash
+
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
-git stash
 # Fetch and rebase with the remote branch before pushing
-git pull --rebase origin "$TARGET_BRANCH"
+git pull --rebase origin "$TARGET_BRANCH" || true
 
-git stash pop
+git stash pop || true
 
 # Create a commit message with user info and link to commit changes
 COMMIT_MESSAGE="[TAG-GENERATOR] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
