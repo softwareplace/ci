@@ -45,10 +45,6 @@ git clone "git@github.com:${REPOSITORY}.git"
 # cd project with validation. If failed, exit.
 cd "$PROJECT_NAME" || exit 1
 
-echo "Before checkout"
-
-checkoutInfo
-
 git fetch --tags
 git checkout tags/"$CURRENT_BRANCH-$LAST_COMMIT_HASH"
 
