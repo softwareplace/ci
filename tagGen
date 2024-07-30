@@ -82,6 +82,8 @@ cd "$PROJECT_NAME" || exit 1
 
 saveUntrackedFiles
 
+TARGET_BRANCH="$TARGET_BRANCH/$CURRENT_BRANCH"
+
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
