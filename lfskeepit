@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+usageHelp() {
+    echo "Usage: $0 --repository <repository> [--target-branch <branch>] [--source-dir <dir>] [--target-dir <dir>] [--lfs <path>]"
+    echo "  --repository: The GitHub repository in the format 'user/repo'."
+    echo "  --target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
+    echo "  --source-dir: Optional. The directory where files should be stored. Defaults to 'cd'."
+    echo "  --lfs: Path of directory containing large files to be added to the repository."
+    echo "  --file: The file that need to be copied."
+    echo "  example: ./ci/lfskeepit --repository \${{ github.repository }} --source-dir cd --target-dir --lfs largefiles --file app-1.0.0.jar"
+}
+
+# Default values
+TARGET_BRANCH="deployment"
+SOURCE_DIR="cd/"
+LFS=""
+FILE_NAME=""
+
+# Parse arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --repository) REPOSITORY="$2"; shift ;;
+        --target-branch) TARGET_BRANCH="$2"; shift ;;
+        --source-dir) SOURCE_DIR="$2"; shift ;;
+        --lfs) LFS="$2"; shift ;;
+        --file) FILE_NAME="$2"; shift ;;
+        *) usageHelp; exit 1 ;;
+    esac
+    shift
+done
+
+# Check if the repository argument is provided
+if [ -z "$REPOSITORY" ]; then
+  usageHelp
+  exit 1
+fi
+
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Extract the project name from the REPOSITORY variable
+PROJECT_NAME=$(echo "$REPOSITORY" | cut -d'/' -f2)
+
+echo "[LFS-KEEPIT] initializing..."
+echo "  REPOSITORY=$REPOSITORY"
+echo "  TARGET_BRANCH=$TARGET_BRANCH"
+echo "  SOURCE_DIR=$SOURCE_DIR"
+echo "  LFS=$LFS"
+
+git config --global user.name "[LFS-KEEPIT] - deployment"
+git config --global user.email "eliasmeireles@gmail.com"
+
+loadingLastCommitInfo() {
+   echo "Current branch: $(git branch --show-current)"
+   LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+   echo "Last commit message: $LAST_COMMIT_MSG"
+
+   LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
+}
+
+addLargeFiles() {
+    if [ -n "$LFS" ]; then
+        echo "Copying large files from $LFS/$FILE_NAME to $PROJECT_NAME/$SOURCE_DIR"
+
+        mkdir -p "${PROJECT_NAME}"/"${SOURCE_DIR}"/
+
+        cp -r "$LFS/$FILE_NAME" "${PROJECT_NAME}"/"${SOURCE_DIR}"/
+    fi
+}
+
+gitLoadLargeFiles() {
+    git lfs install
+
+    # Create a commit message with user info and link to commit changes
+    COMMIT_MESSAGE="[LFS-KEEPIT] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
+    ${LAST_COMMIT_MSG}
+    "
+    echo "$COMMIT_MESSAGE"
+
+    echo "Adding large files to the repository"
+    git lfs track "$SOURCE_DIR/$FILE_NAME"
+
+    git add .gitattributes "$SOURCE_DIR"
+
+    # Commit the large files
+    git commit -m "$COMMIT_MESSAGE"
+
+    echo "Pushing large files to the repository: branch ${TARGET_BRANCH}"
+    git push --set-upstream origin "$TARGET_BRANCH"
+}
+
+# Function to create the remote branch if it does not exist
+createRemoteBranchIfNotExists() {
+    # Check if the branch exists on the remote
+    if ! git ls-remote --heads origin "$TARGET_BRANCH" | grep -q "$TARGET_BRANCH"; then
+        echo "Remote branch '$TARGET_BRANCH' does not exist. Creating it for $CURRENT_BRANCH:$TARGET_BRANCH..."
+        git lfs push origin "$TARGET_BRANCH"
+    fi
+}
+
+echo "Loading last commit info"
+
+echo "Cloning repository"
+git clone "git@github.com:${REPOSITORY}.git"
+
+loadingLastCommitInfo
+
+addLargeFiles
+
+cd "$PROJECT_NAME" || exit 1
+
+git stash
+
+TARGET_BRANCH="$TARGET_BRANCH/$CURRENT_BRANCH"
+
+# Fetch and switch to the target branch, or create it if it does not exist
+git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
+
+# Fetch and rebase with the remote branch before pushing
+git fetch origin
+git rebase origin/"$TARGET_BRANCH" || true
+git rebase origin/"$CURRENT_BRANCH" || true
+
+git stash pop || true
+
+createRemoteBranchIfNotExists
+
+gitLoadLargeFiles

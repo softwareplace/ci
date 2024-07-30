@@ -4,24 +4,37 @@
 set -e
 
 usageHelp() {
-    echo "Usage: $0 <repository> [target-branch] [source-dir] [target-dir]"
-    echo "  repository: The GitHub repository in the format 'user/repo'."
-    echo "  target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
-    echo "  source-dir: Optional. The directory where should store the files. Defaults to 'cd'."
-    echo "  target-dir: Optional. The directory or file paths that should be copied to the target-dir. Defaults to '../.temp/**'"
-    echo "  example: ./ci/tagGen \${{ github.repository }} source cd .temp/**"
+    echo "Usage: $0 --repository <repository> [--target-branch <branch>] [--source-dir <dir>] [--target-dir <dir>]"
+    echo "  --repository: The GitHub repository in the format 'user/repo'."
+    echo "  --target-branch: Optional. The branch to which changes should be pushed. Defaults to 'deployment'."
+    echo "  --source-dir: Optional. The directory where files should be stored. Defaults to 'cd'."
+    echo "  --target-dir: Optional. The directory or file paths that should be copied to the target-dir. Defaults to '../.temp/**'."
+    echo "  example: ./ci/tagGen --repository \${{ github.repository }} --source-dir cd --target-dir .temp/**"
 }
 
+# Default values
+TARGET_BRANCH="deployment"
+SOURCE_DIR="cd/"
+TARGET_DIR="../.temp/**"
+
+# Parse arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --repository) REPOSITORY="$2"; shift ;;
+        --target-branch) TARGET_BRANCH="$2"; shift ;;
+        --source-dir) SOURCE_DIR="$2"; shift ;;
+        --target-dir) TARGET_DIR="$2"; shift ;;
+        *) usageHelp; exit 1 ;;
+    esac
+    shift
+done
+
 # Check if the repository argument is provided
-if [ -z "$1" ]; then
+if [ -z "$REPOSITORY" ]; then
   usageHelp
   exit 1
 fi
 
-REPOSITORY=$1
-TARGET_BRANCH=${2:-deployment}
-SOURCE_DIR=${3:-"cd/"}
-TARGET_DIR=${4:-"../.temp/**"}
 CURRENT_BRANCH=$(git branch --show-current)
 CURRENT_PATH=$(pwd)
 
