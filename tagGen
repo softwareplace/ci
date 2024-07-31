@@ -73,12 +73,7 @@ copyingFiles() {
 }
 
 saveUntrackedFiles() {
-    # Add all untracked files to the git index
-    git add -A
-    # Commit changes if there are any
-    if ! git diff-index --quiet HEAD --; then
-        git commit -m "[TAG-GENERATOR] Saving untracked files before branch switch"
-    fi
+    git stash
 }
 
 echo "Loading last commit info"
