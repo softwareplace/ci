@@ -96,7 +96,8 @@ TARGET_BRANCH="$TARGET_BRANCH/$CURRENT_BRANCH"
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
 
 # Fetch and rebase with the remote branch before pushing
-git fetch origin
+git fetch --all
+
 git rebase origin/$TARGET_BRANCH || true
 git rebase origin/$CURRENT_BRANCH || true
 
