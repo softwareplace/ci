@@ -73,7 +73,7 @@ copyingFiles() {
 }
 
 saveUntrackedFiles() {
-    git stash
+    git stash push -u || true
 }
 
 echo "Loading last commit info"
@@ -98,7 +98,7 @@ git branch --set-upstream-to=origin/"$TARGET_BRANCH"
 
 # Fetch and rebase with the remote branch before pushing
 git fetch origin
-git rebase origin/"$TARGET_BRANCH"
+git rebase origin/"$TARGET_BRANCH" || git rebase --reapply-cherry-picks origin/"$TARGET_BRANCH" || true
 
 # Apply stashed changes if any
 git stash pop || true
@@ -111,7 +111,6 @@ echo "$COMMIT_MESSAGE"
 
 # Add, commit, and push the changes
 git add ./${SOURCE_DIR}
-
 git commit -m "$COMMIT_MESSAGE" || echo "No changes to commit"
 
 # Push changes, handle non-fast-forward issues
