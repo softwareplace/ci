@@ -97,11 +97,11 @@ git diff || true
 TARGET_BRANCH="$TARGET_BRANCH/$CURRENT_BRANCH"
 
 # Fetch and switch to the target branch, or create it if it does not exist
-git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
+git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH" && git branch --set-upstream-to=origin/"$TARGET_BRANCH"
+
+git pull --rebase origin "$TARGET_BRANCH" || true
 
 git fetch --all
-
-git branch --set-upstream-to=origin/"$TARGET_BRANCH" || true
 
 # Fetch and rebase with the remote branch before pushing
 git rebase origin/"$TARGET_BRANCH" || git rebase --reapply-cherry-picks origin/"$TARGET_BRANCH" || true
