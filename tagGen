@@ -115,7 +115,7 @@ echo "$COMMIT_MESSAGE"
 # Add, commit, and push the changes
 git add ./${SOURCE_DIR}
 
-git commit -m "$COMMIT_MESSAGE" || git commit --allow-empty-message -m "$COMMIT_MESSAGE"
+git commit -m "$COMMIT_MESSAGE" || git commit --allow-empty -m "$COMMIT_MESSAGE"
 
 # Push changes, handle non-fast-forward issues
 git push origin "$TARGET_BRANCH" || (git pull --rebase origin "$TARGET_BRANCH" && git push origin "$TARGET_BRANCH")
