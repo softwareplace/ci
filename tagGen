@@ -73,7 +73,7 @@ copyingFiles() {
 }
 
 saveUntrackedFiles() {
-    git stash push -u || true
+    git stash || true
 }
 
 echo "Loading last commit info"
@@ -88,7 +88,11 @@ rm -rf .git
 
 cd "$PROJECT_NAME" || exit 1
 
+git diff || true
+
 saveUntrackedFiles
+
+git diff || true
 
 TARGET_BRANCH="$TARGET_BRANCH/$CURRENT_BRANCH"
 
@@ -105,6 +109,8 @@ git rebase origin/"$CURRENT_BRANCH" || git rebase --reapply-cherry-picks origin/
 
 # Apply stashed changes if any
 git stash pop || true
+
+git diff || true
 
 # Create a commit message with user info and link to commit changes
 COMMIT_MESSAGE="[TAG-GENERATOR] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
