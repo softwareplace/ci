@@ -100,6 +100,7 @@ git fetch --all
 
 git rebase origin/$TARGET_BRANCH || true
 git rebase origin/$CURRENT_BRANCH || true
+git pull --rebase  || true
 
 git stash pop || true
 
@@ -114,7 +115,7 @@ git add ./${SOURCE_DIR}
 
 git commit -m "$COMMIT_MESSAGE" || echo "No changes to commit"
 
-git push origin "$TARGET_BRANCH" || (git pull --rebase && git push origin "$TARGET_BRANCH")
+git push --set-upstream origin "$TARGET_BRANCH" || (git pull --rebase && git push --set-upstream origin "$TARGET_BRANCH")
 
 # Create a tagGen with repository name, flag, and commit hash
 TAG="${CURRENT_BRANCH}-${LAST_COMMIT_HASH}"
