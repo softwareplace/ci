@@ -89,8 +89,14 @@ cd "$PROJECT_NAME" || exit 1
 
 git fetch --all
 
+createNewBranch() {
+    echo "Creating a new branch: $TARGET_BRANCH"
+    git checkout -b "$TARGET_BRANCH" && git branch --set-upstream-to=origin/"$TARGET_BRANCH"
+    echo "Branch $TARGET_BRANCH created"
+}
+
 # Fetch and switch to the target branch, or create it if it does not exist
-git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH" && git branch --set-upstream-to=origin/"$TARGET_BRANCH"
+git checkout "$TARGET_BRANCH" || createNewBranch
 
 # Update local branch with the latest changes from the remote
 git pull --rebase origin "$TARGET_BRANCH" || true
