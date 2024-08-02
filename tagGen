@@ -94,14 +94,13 @@ TARGET_BRANCH="$TARGET_BRANCH/$CURRENT_BRANCH"
 
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH"
+git branch --set-upstream-to=origin/"$TARGET_BRANCH"
 
 # Fetch and rebase with the remote branch before pushing
-git fetch --all
+git fetch origin
+git rebase origin/"$TARGET_BRANCH"
 
-git rebase origin/$TARGET_BRANCH || true
-git rebase origin/$CURRENT_BRANCH || true
-git pull --rebase  || true
-
+# Apply stashed changes if any
 git stash pop || true
 
 # Create a commit message with user info and link to commit changes
@@ -115,7 +114,8 @@ git add ./${SOURCE_DIR}
 
 git commit -m "$COMMIT_MESSAGE" || echo "No changes to commit"
 
-git push --set-upstream origin "$TARGET_BRANCH" || (git pull --rebase && git push --set-upstream origin "$TARGET_BRANCH")
+# Push changes, handle non-fast-forward issues
+git push origin "$TARGET_BRANCH" || (git pull --rebase origin "$TARGET_BRANCH" && git push origin "$TARGET_BRANCH")
 
 # Create a tagGen with repository name, flag, and commit hash
 TAG="${CURRENT_BRANCH}-${LAST_COMMIT_HASH}"
