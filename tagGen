@@ -70,6 +70,7 @@ copyingFiles() {
 
     echo "Files in $SOURCE_DIR"
     ls -lah ${PROJECT_NAME}/${SOURCE_DIR}
+    cd "$PROJECT_NAME" || exit 1
 }
 
 saveUntrackedFiles() {
@@ -82,34 +83,17 @@ loadingLastCommitInfo
 echo "Cloning repository"
 git clone "git@github.com:${REPOSITORY}.git"
 
-copyingFiles
-
-rm -rf .git
+TARGET_BRANCH="$TARGET_BRANCH/$CURRENT_BRANCH"
 
 cd "$PROJECT_NAME" || exit 1
 
-git diff || true
-
-saveUntrackedFiles
-
-git diff || true
-
-TARGET_BRANCH="$TARGET_BRANCH/$CURRENT_BRANCH"
+git fetch --all
 
 # Fetch and switch to the target branch, or create it if it does not exist
 git checkout "$TARGET_BRANCH" || git checkout -b "$TARGET_BRANCH" && git branch --set-upstream-to=origin/"$TARGET_BRANCH"
 
 # Update local branch with the latest changes from the remote
 git pull --rebase origin "$TARGET_BRANCH" || true
-git fetch --all
-
-# Start rebase from the remote branch
-git rebase origin/"$TARGET_BRANCH" || {
-  echo "Rebase conflict detected. Resolving conflicts by keeping local changes."
-  # Resolve conflicts by keeping local changes
-  git rebase --abort
-  git rebase --strategy-option=ours origin/"$TARGET_BRANCH"
-}
 
 # Rebase with current branch to ensure it’s up-to-date
 git rebase origin/"$CURRENT_BRANCH" || {
@@ -119,8 +103,9 @@ git rebase origin/"$CURRENT_BRANCH" || {
   git rebase --strategy-option=ours origin/"$CURRENT_BRANCH"
 }
 
-# Apply stashed changes if any
-git stash pop || true
+cd ..
+
+copyingFiles
 
 git diff || true
 
