@@ -117,13 +117,13 @@ copyingFiles
 git diff || true
 
 # Create a commit message with user info and link to commit changes
-COMMIT_MESSAGE="[TAG-GENERATOR] execution on [${LAST_COMMIT_HASH}](https://github.com/${REPOSITORY}/commit/${LAST_COMMIT_HASH})
+COMMIT_MESSAGE="[${CURRENT_BRANCH}-${LAST_COMMIT_HASH}] Application Deployment
 ${LAST_COMMIT_MSG}
 "
 echo "$COMMIT_MESSAGE"
 
 # Add, commit, and push the changes
-git add ./${SOURCE_DIR}
+git add ./"${SOURCE_DIR}"
 
 git commit -m "$COMMIT_MESSAGE" || git commit --allow-empty -m "$COMMIT_MESSAGE"
 
