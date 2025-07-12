@@ -58,6 +58,8 @@ loadingLastCommitInfo() {
    LAST_COMMIT_HASH=$(git rev-parse --short HEAD)
 }
 
+git config set advice.skippedCherryPicks false || true
+
 copyingFiles() {
     echo "Copying files from $TARGET_DIR to $SOURCE_DIR"
 
@@ -97,20 +99,26 @@ createNewBranch() {
 }
 
 # Fetch and switch to the target branch, or create it if it does not exist
-git checkout "$TARGET_BRANCH" || createNewBranch
+git checkout "$TARGET_BRANCH" -f || createNewBranch
+
+#echo "Update local branch with the latest changes from the remote"
 
 # Update local branch with the latest changes from the remote
-git pull --rebase origin "$TARGET_BRANCH" || true
+#git pull --rebase origin "$TARGET_BRANCH" || true
 
-# Rebase with current branch to ensure it’s up-to-date
-git rebase origin/"$CURRENT_BRANCH" || {
-  echo "Rebase conflict detected. Resolving conflicts by keeping local changes."
-  # Resolve conflicts by keeping local changes
-  git rebase --abort
-  git rebase --strategy-option=ours origin/"$CURRENT_BRANCH"
-}
+#echo "Rebasing current branch with origin/$CURRENT_BRANCH"
+
+## Rebase with current branch to ensure it’s up-to-date
+#git rebase origin/"$CURRENT_BRANCH" || {
+#  echo "Rebase conflict detected. Resolving conflicts by keeping local changes."
+#  # Resolve conflicts by keeping local changes
+#  git rebase --abort
+#  git rebase --strategy-option=ours origin/"$CURRENT_BRANCH"
+#}
 
 cd ..
+
+echo "Saving untracked files"
 
 copyingFiles
 
@@ -129,7 +137,7 @@ git commit -m "$COMMIT_MESSAGE" || git commit --allow-empty -m "$COMMIT_MESSAGE"
 
 # Push changes, handle non-fast-forward issues
 #git push origin "$TARGET_BRANCH" || (git pull --rebase origin "$TARGET_BRANCH" && git push origin "$TARGET_BRANCH")
-git push origin "$TARGET_BRANCH" -f
+git push origin "$TARGET_BRANCH" --force
 
 TAG="${CURRENT_BRANCH}-${LAST_COMMIT_HASH}"
 TAG_MESSAGE="${CURRENT_BRANCH}-${LAST_COMMIT_HASH}
